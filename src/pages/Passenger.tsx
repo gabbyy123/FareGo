@@ -39,7 +39,11 @@ export default function Passenger() {
     const [showSummaryModal, setShowSummaryModal] = useState(false);
     
     // Map states
+<<<<<<< HEAD
     const [rideStatus, setRideStatus] = useState<'idle' | 'negotiating' | 'in_progress' | 'active_trip'>('idle');
+=======
+    const [rideStatus, setRideStatus] = useState<'idle' | 'negotiating' | 'in_progress' | 'active_trip' | 'completed'>('idle');
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
     const [acceptedBid, setAcceptedBid] = useState<any | null>(null);
 
     const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
@@ -121,10 +125,34 @@ export default function Passenger() {
     }, []);
 
     useEffect(() => {
+<<<<<<< HEAD
         if (!user || user.role !== 'passenger') {
             navigate('/login');
         } else {
             fetchRides();
+=======
+        if (currentRideId && socketRef.current) {
+            socketRef.current.emit('joinRoom', `ride_${currentRideId}`);
+        }
+    }, [currentRideId]);
+
+    useEffect(() => {
+        if (!user || user.role !== 'passenger') {
+            navigate('/login');
+        } else {
+            if (location.state?.isNewRequest) {
+                // Clear any stuck rides from previous sessions to ensure a clean slate
+                fetch((import.meta.env.VITE_API_URL || '') + '/api/rides/debug_cancel_all', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                }).then(() => {
+                    navigate(location.pathname, { replace: true, state: {} });
+                    fetchRides();
+                }).catch(console.error);
+            } else {
+                fetchRides();
+            }
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
         }
     }, [user, navigate]);
 
@@ -160,17 +188,40 @@ export default function Passenger() {
                 // Simple mock logic to update map based on top active ride
                 if (data.length > 0) {
                     const topRide = data[0];
+<<<<<<< HEAD
                     if (topRide.status === 'pending' || topRide.status === 'negotiating') {
                         setRideStatus('negotiating');
                         setPickupCoords({ lat: topRide.pickupLat, lng: topRide.pickupLng });
                         setDropoffCoords({ lat: topRide.dropoffLat, lng: topRide.dropoffLng });
                     } else if (topRide.status === 'accepted' || topRide.status === 'in_progress') {
                         setRideStatus('in_progress');
+=======
+                    if (topRide.status === 'accepted' || topRide.status === 'in_progress') {
+                        setRideStatus('in_progress');
+                        setCurrentRideId(topRide.id);
+                        setPickupCoords({ lat: topRide.pickupLat, lng: topRide.pickupLng });
+                        setDropoffCoords({ lat: topRide.dropoffLat, lng: topRide.dropoffLng });
+                        setAcceptedBid({
+                            driverId: topRide.driverId,
+                            driverName: topRide.driverFirstName ? `${topRide.driverFirstName} ${topRide.driverLastName}` : 'Driver',
+                            rating: topRide.driverRating || 5.0,
+                            proposedFare: topRide.proposedFare,
+                            boardingOTP: topRide.boardingOTP
+                        });
+                    } else if (topRide.status === 'pending' || topRide.status === 'negotiating') {
+                        setRideStatus('negotiating');
+                        setCurrentRideId(topRide.id);
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
                         setPickupCoords({ lat: topRide.pickupLat, lng: topRide.pickupLng });
                         setDropoffCoords({ lat: topRide.dropoffLat, lng: topRide.dropoffLng });
                     } else {
                         setRideStatus('idle');
                     }
+<<<<<<< HEAD
+=======
+                } else {
+                    setRideStatus('idle');
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
                 }
             }
         } catch (err) {
@@ -222,10 +273,17 @@ export default function Passenger() {
             promoCode: isPromoApplied ? promoCode : null,
             isFemaleOnly: user?.gender === 'male' ? false : formData.isFemaleOnlyRequest, // Map the renamed state for API backwards compatibility if needed
             passengerName: user ? `${user.firstName} ${user.lastName}` : 'Passenger',
+<<<<<<< HEAD
             pickupLat: pickupCoords?.lat || 14.5995, 
             pickupLng: pickupCoords?.lng || 120.9842,
             dropoffLat: dropoffCoords?.lat || 14.5547, 
             dropoffLng: dropoffCoords?.lng || 121.0244,
+=======
+            pickupLat: pickupCoords?.lat, 
+            pickupLng: pickupCoords?.lng,
+            dropoffLat: dropoffCoords?.lat, 
+            dropoffLng: dropoffCoords?.lng,
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
             serviceType,
             requestedVehicleType
         };
@@ -260,7 +318,11 @@ export default function Passenger() {
     };
     
     const handleAcceptBid = async (bidId: number) => {
+<<<<<<< HEAD
         const bid = activeBids.find(b => b.id === bidId);
+=======
+        const bid = activeBids.find(b => String(b.id) === String(bidId));
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
         if (bid) {
             setAcceptingBidId(bidId);
             try {
@@ -296,6 +358,32 @@ export default function Passenger() {
         }
     };
 
+<<<<<<< HEAD
+=======
+    const cancelProtocol = async () => {
+        if (currentRideId) {
+            try {
+                await fetch((import.meta.env.VITE_API_URL || '') + '/api/rides/cancel', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ rideId: currentRideId })
+                });
+            } catch (err) {
+                console.error('Failed to cancel on server', err);
+            }
+        }
+        setRideStatus('idle'); 
+        setFormData({ pickupAddress: '', dropoffAddress: '', proposedFare: '', isFemaleOnlyRequest: false, isEcoFriendly: false, isPool: false }); 
+        setPickupCoords(null); 
+        setDropoffCoords(null); 
+        setActiveBids([]); 
+        setIsPromoApplied(false); 
+        setPromoCode(''); 
+        setDiscountPercentage(0);
+        setCurrentRideId(null);
+    };
+
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
     const handleTripEnd = () => {
         setRideStatus('idle');
         setAcceptedBid(null);
@@ -309,7 +397,11 @@ export default function Passenger() {
         setDiscountPercentage(0);
     };
 
+<<<<<<< HEAD
     if (rideStatus === 'active_trip' && acceptedBid && pickupCoords && dropoffCoords) {
+=======
+    if ((rideStatus === 'active_trip' || rideStatus === 'in_progress' || rideStatus === 'completed') && acceptedBid && pickupCoords && dropoffCoords) {
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
         return (
             <ActivePassengerTrip 
                 bid={acceptedBid} 
@@ -403,7 +495,11 @@ export default function Passenger() {
                                </div>
                            )}
                            
+<<<<<<< HEAD
                            <button onClick={(e) => { e.preventDefault(); setRideStatus('idle'); setFormData({ pickupAddress: '', dropoffAddress: '', proposedFare: '', isFemaleOnlyRequest: false, isEcoFriendly: false, isPool: false }); setPickupCoords(null); setDropoffCoords(null); setActiveBids([]); setIsPromoApplied(false); setPromoCode(''); setDiscountPercentage(0); }} className="mt-8 px-8 py-3.5 bg-white border border-slate-200 text-slate-700 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50 rounded-full font-bold hover:shadow-md transition-all">
+=======
+                           <button onClick={(e) => { e.preventDefault(); cancelProtocol(); }} className="mt-8 px-8 py-3.5 bg-white border border-slate-200 text-slate-700 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50 rounded-full font-bold hover:shadow-md transition-all">
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
                                Cancel Protocol
                            </button>
                        </motion.div>

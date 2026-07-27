@@ -1,21 +1,16 @@
-<<<<<<< HEAD
-import 'dotenv/config';
-import mysql from 'mysql2/promise';
-
-=======
 import mysql from 'mysql2/promise';
 
 // In a real environment, this would establish connection pooling
->>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
-const pool = mysql.createPool({
-    host: "localhost",
-    user: "root",       // Default XAMPP username
-    password: "",       // Default XAMPP password is empty
-    database: "farego_db", // Your actual phpMyAdmin database name
+const pool = process.env.DB_HOST ? mysql.createPool({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
-});
+}) : null;
+
 // Mock store for fallback
 class MockStore {
     users: any[] = [
@@ -93,31 +88,7 @@ class MockStore {
         }
 
         if (sql.includes('INSERT INTO ride_requests')) {
-<<<<<<< HEAD
-            const newRide = { 
-                id: this.idCounter++, 
-                passengerId: params[0],
-                passengerName: params[1], 
-                pickupLat: params[2], 
-                pickupLng: params[3], 
-                pickupAddress: params[4], 
-                dropoffLat: params[5], 
-                dropoffLng: params[6], 
-                dropoffAddress: params[7], 
-                proposedFare: params[8], 
-                status: 'pending', 
-                serviceType: params[9], 
-                requestedVehicleType: params[10], 
-                isFemaleOnly: params[11], 
-                isEcoFriendly: params[12], 
-                isPool: params[13], 
-                boardingOTP: params[14] || '1234', 
-                promoCode: params[15] || null, 
-                createdAt: new Date() 
-            };
-=======
             const newRide = { id: this.idCounter++, passengerId: params[0], pickupLat: params[1], pickupLng: params[2], pickupAddress: params[3], dropoffLat: params[4], dropoffLng: params[5], dropoffAddress: params[6], proposedFare: params[7], status: 'pending', serviceType: params[8], requestedVehicleType: params[9], isFemaleOnly: params[10], isEcoFriendly: params[11], isPool: params[12], boardingOTP: params[13] || '1234', promoCode: params[14] || null, createdAt: new Date() };
->>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
             this.ride_requests.push(newRide);
             return [{ insertId: newRide.id }];
         }
@@ -139,12 +110,6 @@ class MockStore {
         if (sql.includes('SELECT * FROM ride_requests WHERE passengerId = ? AND status = ?')) {
             return [this.ride_requests.filter(r => r.passengerId === params[0] && r.status === params[1])];
         }
-<<<<<<< HEAD
-        if (sql.includes("driverId = ? AND status IN ('accepted', 'in_progress', 'heading_to_pickup', 'arrived')")) {
-            return [this.ride_requests.filter(r => r.driverId === params[0] && ['accepted', 'in_progress', 'heading_to_pickup', 'arrived'].includes(r.status)).sort((a,b) => b.id - a.id)];
-        }
-=======
->>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
         if (sql.includes('SELECT * FROM ride_requests WHERE driverId = ? AND status = ?')) {
             return [this.ride_requests.filter(r => r.driverId === params[0] && r.status === params[1])];
         }
@@ -154,23 +119,11 @@ class MockStore {
         if (sql.includes('SELECT * FROM ride_requests WHERE passengerId = ? ORDER BY createdAt DESC')) {
             return [this.ride_requests.filter(r => r.passengerId === params[0])];
         }
-<<<<<<< HEAD
-        if (sql.includes("UPDATE ride_requests SET status = 'accepted'")) {
-            const rideId = params[params.length - 1];
-            const ride = this.ride_requests.find(r => r.id == rideId);
-            if (ride) { 
-                ride.status = 'accepted'; 
-                ride.driverId = params[0];
-                if (sql.includes('proposedFare')) {
-                    ride.proposedFare = params[1];
-                }
-=======
         if (sql.includes('UPDATE ride_requests SET status = \'accepted\', driverId = ? WHERE id = ?')) {
             const ride = this.ride_requests.find(r => r.id == params[1]);
             if (ride) { 
                 ride.status = 'accepted'; 
                 ride.driverId = params[0];
->>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
             }
             return [{}];
         }
@@ -199,16 +152,6 @@ class MockStore {
             }).sort((a, b) => b.id - a.id); // Simulate descending by id/createdAt
             return [result];
         }
-<<<<<<< HEAD
-        if (sql.includes('SELECT * FROM bids WHERE rideRequestId = ? AND driverId = ?')) {
-            const bidsForRide = this.bids.filter(b => b.rideRequestId == params[0] && b.driverId == params[1]);
-            return [bidsForRide.sort((a,b) => b.id - a.id)];
-        }
-        if (sql.includes('SELECT * FROM ride_requests WHERE id = ?')) {
-            return [this.ride_requests.filter(r => r.id == params[0])];
-        }
-=======
->>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
         if (sql.includes('SELECT * FROM vehicles WHERE driverId = ?')) {
             return [this.vehicles.filter(v => v.driverId === params[0])];
         }
@@ -260,34 +203,3 @@ export async function query(sql: string, params: any[] = []): Promise<any> {
         return mockStore.query(sql, params);
     }
 }
-<<<<<<< HEAD
-
-// Auto-migrate tables for local mysql
-export async function initializeDatabase() {
-    if (!pool) return;
-    try {
-        console.log('Checking database schema...');
-        // Add passengerName if missing
-        try {
-            await pool.query("ALTER TABLE ride_requests ADD COLUMN passengerName VARCHAR(255) DEFAULT 'Passenger'");
-            console.log('Added passengerName to ride_requests');
-        } catch (e: any) {
-             // Ignored if column already exists (Error code ER_DUP_FIELDNAME)
-        }
-        
-        try {
-            await pool.query("ALTER TABLE bids ADD COLUMN time INT DEFAULT 0");
-            console.log('Added time to bids');
-        } catch (e: any) {}
-        
-        try {
-            await pool.query("ALTER TABLE bids ADD COLUMN distance VARCHAR(50) DEFAULT '0km'");
-            console.log('Added distance to bids');
-        } catch (e: any) {}
-        
-    } catch (e) {
-        console.error('Migration checks failed', e);
-    }
-}
-=======
->>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6

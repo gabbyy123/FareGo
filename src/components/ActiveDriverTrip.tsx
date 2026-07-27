@@ -60,8 +60,13 @@ export default function ActiveDriverTrip({ ride, onComplete }: ActiveDriverTripP
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Use dynamic coordinates from the ride request if available, otherwise fallback
+<<<<<<< HEAD
     const pickupLoc = { lat: Number(ride.pickupLat) || 14.6050, lng: Number(ride.pickupLng) || 120.9850 };
     const dropoffLoc = { lat: Number(ride.dropoffLat) || 14.6100, lng: Number(ride.dropoffLng) || 120.9900 };
+=======
+    const pickupLoc = { lat: Number(ride.pickupLat), lng: Number(ride.pickupLng) };
+    const dropoffLoc = { lat: Number(ride.dropoffLat), lng: Number(ride.dropoffLng) };
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
     
     // Safety check for math ops
     const initialDriver = { lat: Number(pickupLoc.lat) - 0.015, lng: Number(pickupLoc.lng) + 0.015 };
@@ -128,6 +133,7 @@ export default function ActiveDriverTrip({ ride, onComplete }: ActiveDriverTripP
         setChatInput('');
     };
 
+<<<<<<< HEAD
     useEffect(() => {
         if (socketRef.current && actualRideId && driverPos) {
             socketRef.current.emit('driverLocationUpdate', {
@@ -137,6 +143,23 @@ export default function ActiveDriverTrip({ ride, onComplete }: ActiveDriverTripP
                 distanceRemaining,
                 durationRemaining
             });
+=======
+    const lastEmitTimeRef = useRef<number>(0);
+
+    useEffect(() => {
+        if (socketRef.current && actualRideId && driverPos) {
+            const now = Date.now();
+            if (now - lastEmitTimeRef.current > 1000) {
+                socketRef.current.emit('driverLocationUpdate', {
+                    rideId: actualRideId,
+                    lat: Number(driverPos.lat),
+                    lng: Number(driverPos.lng),
+                    distanceRemaining,
+                    durationRemaining
+                });
+                lastEmitTimeRef.current = now;
+            }
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
         }
     }, [driverPos.lat, driverPos.lng, distanceRemaining, durationRemaining]);
 
@@ -159,10 +182,17 @@ export default function ActiveDriverTrip({ ride, onComplete }: ActiveDriverTripP
             let endCoord = pickupLoc;
             
             if (tripState === 'in_transit') {
+<<<<<<< HEAD
                 startCoord = pickupLoc;
                 endCoord = dropoffLoc;
             } else if (tripState === 'heading_to_pickup') {
                 startCoord = initialDriver;
+=======
+                startCoord = driverPos;
+                endCoord = dropoffLoc;
+            } else if (tripState === 'heading_to_pickup') {
+                startCoord = driverPos;
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
                 endCoord = pickupLoc;
             } else {
                 return;
@@ -258,9 +288,15 @@ export default function ActiveDriverTrip({ ride, onComplete }: ActiveDriverTripP
                         date: new Date().toISOString(),
                         role: 'driver',
                         recordedPath: routePath,
+<<<<<<< HEAD
                         fare: ride.proposedFare
                     });
                     onComplete(ride.proposedFare);
+=======
+                        fare: ride.proposedFare || 0
+                    });
+                    onComplete(ride.proposedFare || 0);
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
                 } else {
                      toast.error('Failed to complete trip');
                 }
@@ -316,7 +352,11 @@ export default function ActiveDriverTrip({ ride, onComplete }: ActiveDriverTripP
                         className="bg-white w-full sm:w-[400px] rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl flex flex-col items-center border border-slate-200"
                     >
                         <h3 className="text-2xl font-black text-slate-900 mb-2">Verify Passenger</h3>
+<<<<<<< HEAD
                         <p className="text-slate-500 font-medium mb-6 text-center">Enter the 4-digit PIN provided by {ride.passengerName}</p>
+=======
+                        <p className="text-slate-500 font-medium mb-6 text-center">Enter the 4-digit PIN provided by {ride.passengerName || 'the passenger'}</p>
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
                         
                         <div className={`flex gap-3 mb-8 w-full justify-center ${otpError ? 'animate-shake' : ''}`}>
                             {[0, 1, 2, 3].map((i) => (
@@ -361,7 +401,11 @@ export default function ActiveDriverTrip({ ride, onComplete }: ActiveDriverTripP
         switch (tripState) {
             case 'heading_to_pickup': return 'Tap when Arrived';
             case 'arrived': return 'Verify Passenger PIN';
+<<<<<<< HEAD
             case 'in_transit': return `Complete Trip & Collect ₱${ride.proposedFare}`;
+=======
+            case 'in_transit': return `Complete Trip & Collect ₱${ride.proposedFare || 0}`;
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
             default: return '';
         }
     };
@@ -378,7 +422,11 @@ export default function ActiveDriverTrip({ ride, onComplete }: ActiveDriverTripP
             const km = (distanceRemaining / 1000).toFixed(1);
             info += ` • ${km} km away`;
         }
+<<<<<<< HEAD
         return info || ride.eta;
+=======
+        return info || ride.eta || 'N/A';
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
     };
 
     return (
@@ -457,6 +505,7 @@ export default function ActiveDriverTrip({ ride, onComplete }: ActiveDriverTripP
                         <div className="w-16 h-16 rounded-full bg-slate-200 relative overflow-hidden border-2 border-white shadow-sm flex items-center justify-center">
                             {/* Avatar placeholder */}
                             <div className={`absolute inset-0 bg-gradient-to-br ${ride.isFemaleOnly ? 'from-purple-300 to-purple-500' : 'from-blue-300 to-blue-500'}`}></div>
+<<<<<<< HEAD
                             <div className="relative text-white font-bold text-xl">{ride.passengerName.charAt(0)}</div>
                         </div>
                         <div>
@@ -465,6 +514,16 @@ export default function ActiveDriverTrip({ ride, onComplete }: ActiveDriverTripP
                                 {ride.isFemaleOnly && <ShieldCheck className="w-5 h-5 text-purple-600" />}
                             </h3>
                             <p className="text-slate-500 font-medium text-sm mt-0.5">⭐ {ride.rating.toFixed(1)} • {ride.distance}</p>
+=======
+                            <div className="relative text-white font-bold text-xl">{(ride.passengerName || 'Passenger').charAt(0)}</div>
+                        </div>
+                        <div>
+                            <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                                {ride.passengerName || 'Passenger'}
+                                {ride.isFemaleOnly && <ShieldCheck className="w-5 h-5 text-purple-600" />}
+                            </h3>
+                            <p className="text-slate-500 font-medium text-sm mt-0.5">⭐ {(ride.rating || 5.0).toFixed(1)} • {ride.distance || '1.0km'}</p>
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
                         </div>
                     </div>
                     
@@ -519,7 +578,11 @@ export default function ActiveDriverTrip({ ride, onComplete }: ActiveDriverTripP
                         <div className="bg-slate-900 border-b border-slate-800 p-4 flex items-center justify-between">
                             <h3 className="font-bold text-white flex items-center gap-2">
                                 <MessageCircle className="w-5 h-5 text-blue-400" />
+<<<<<<< HEAD
                                 Chat with {ride.passengerName}
+=======
+                                Chat with {ride.passengerName || 'Passenger'}
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
                             </h3>
                             <button onClick={() => setIsChatOpen(false)} className="text-slate-400 hover:text-white transition-colors">
                                 <X className="w-5 h-5" />
@@ -561,9 +624,15 @@ export default function ActiveDriverTrip({ ride, onComplete }: ActiveDriverTripP
             <AnimatePresence>
                 {tripState === 'completed' && (
                     <DriverEarningsModal 
+<<<<<<< HEAD
                         fare={ride.proposedFare} 
                         recordedPath={recordedPath} 
                         onComplete={() => onComplete(ride.proposedFare)} 
+=======
+                        fare={ride.proposedFare || 0} 
+                        recordedPath={recordedPath} 
+                        onComplete={() => onComplete(ride.proposedFare || 0)} 
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
                     />
                 )}
             </AnimatePresence>

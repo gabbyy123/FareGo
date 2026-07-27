@@ -137,6 +137,15 @@ export default function ActivePassengerTrip({ bid, rideId, pickupCoords, dropoff
             }
         });
 
+<<<<<<< HEAD
+=======
+        socketRef.current.on('rideStatusUpdate', (data: any) => {
+            if (data.status === 'completed' && String(data.rideId) === String(rideId)) {
+                setTripState('completed');
+            }
+        });
+
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
         socketRef.current.on('chatMessage', (data: any) => {
             setMessages(prev => [...prev, data]);
             setIsChatOpen(prevOpen => {
@@ -326,7 +335,11 @@ export default function ActivePassengerTrip({ bid, rideId, pickupCoords, dropoff
                                 <span className="font-bold text-sm bg-slate-100 text-slate-700 px-2 py-0.5 rounded-lg border border-slate-200">
                                     ⭐ {bid.rating}
                                 </span>
+<<<<<<< HEAD
                                 <span className="text-slate-500 font-medium text-sm">XYZ-9876 • Toyota Vios</span>
+=======
+                                <span className="text-slate-500 font-medium text-sm">{bid.plateNumber || 'N/A'} • {bid.vehicleMake || 'Unknown'} {bid.vehicleModel || ''}</span>
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
                             </div>
                         </div>
                     </div>

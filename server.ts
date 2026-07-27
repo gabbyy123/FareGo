@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 import 'dotenv/config';
+=======
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
 import express from 'express';
 import cors from 'cors';
 import bcrypt from 'bcryptjs';
@@ -154,6 +157,7 @@ app.post('/api/rides/create', authenticateToken, async (req: any, res: any) => {
     }
 });
 
+<<<<<<< HEAD
 app.post('/api/rides/debug_cancel_all', authenticateToken, async (req: any, res: any) => {
     try {
         await query('DELETE FROM ride_requests WHERE passengerId = ?', [req.user.id]);
@@ -202,11 +206,25 @@ app.post('/api/bids/accept', authenticateToken, async (req: any, res: any) => {
                 winningDriverId,
                 rideDetails: acceptedRide
             });
+=======
+app.post('/api/bids/accept', authenticateToken, async (req: any, res: any) => {
+    try {
+        const { rideId, winningDriverId } = req.body;
+        // Mock implementation to mark ride as accepted
+        await query("UPDATE ride_requests SET status = 'accepted', driverId = ? WHERE id = ?", [winningDriverId, rideId]);
+        
+        const io = req.app.get('io');
+        if (io) {
+            io.emit('bidAccepted', { rideId, winningDriverId });
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
         }
         
         res.json({ success: true, message: 'Bid accepted' });
     } catch(error) {
+<<<<<<< HEAD
         console.error(error);
+=======
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
         res.status(500).json({ error: 'Failed to accept bid' });
     }
 });
@@ -217,16 +235,23 @@ app.post('/api/bids/submit', authenticateToken, async (req: any, res: any) => {
         
         const result: any = await query(
             'INSERT INTO bids (rideRequestId, driverId, bidAmount, time, distance) VALUES (?, ?, ?, ?, ?)',
+<<<<<<< HEAD
             [rideId, driverId, proposedFare, parseInt(time) || 0, distance || '0km']
+=======
+            [rideId, driverId, proposedFare, time || 0, distance || '0km']
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
         );
         const bidId = result[0].insertId;
 
         const [users]: any = await query('SELECT * FROM users WHERE id = ?', [driverId]);
         const user = users[0];
 
+<<<<<<< HEAD
         const [vehicles]: any = await query('SELECT * FROM vehicles WHERE driverId = ?', [driverId]);
         const vehicle = vehicles[0] || {};
 
+=======
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
         const bidData = {
             id: bidId,
             rideId,
@@ -236,10 +261,14 @@ app.post('/api/bids/submit', authenticateToken, async (req: any, res: any) => {
             proposedFare,
             distance,
             time,
+<<<<<<< HEAD
             isMale: user.gender === 'male',
             vehicleMake: vehicle.make || 'Unknown',
             vehicleModel: vehicle.model || 'Vehicle',
             plateNumber: vehicle.plateNumber || 'N/A'
+=======
+            isMale: user.gender === 'male'
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
         };
 
         const io = req.app.get('io');
@@ -248,7 +277,11 @@ app.post('/api/bids/submit', authenticateToken, async (req: any, res: any) => {
         }
         res.json({ success: true, message: 'Bid submitted' });
     } catch(error: any) {
+<<<<<<< HEAD
         console.error('SQL Error on BID SUBMIT:', error.message);
+=======
+        console.error('SQL Error:', error.message);
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
         res.status(500).json({ error: 'Failed to submit bid', details: error.message });
     }
 });
@@ -386,6 +419,7 @@ app.post('/api/rides/:id/dispute', authenticateToken, async (req: any, res: any)
 
 app.get('/api/rides/passenger', authenticateToken, async (req: any, res: any) => {
     try {
+<<<<<<< HEAD
         const [rows]: any = await query(`
             SELECT r.*, u.firstName as driverFirstName, u.lastName as driverLastName, u.rating as driverRating
             FROM ride_requests r
@@ -393,6 +427,9 @@ app.get('/api/rides/passenger', authenticateToken, async (req: any, res: any) =>
             WHERE r.passengerId = ?
             ORDER BY r.id DESC
         `, [req.user.id]);
+=======
+        const [rows] = await query('SELECT * FROM ride_requests WHERE passengerId = ? ORDER BY createdAt DESC', [req.user.id]);
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
         res.json(rows);
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch rides' });
@@ -423,6 +460,7 @@ app.get('/api/rides/available', authenticateToken, async (req: any, res: any) =>
             return vehicleMatch;
         });
         
+<<<<<<< HEAD
         const [activeTrips]: any = await query(`
             SELECT * FROM ride_requests 
             WHERE driverId = ? AND status IN ('accepted', 'in_progress', 'heading_to_pickup', 'arrived')
@@ -435,6 +473,10 @@ app.get('/api/rides/available', authenticateToken, async (req: any, res: any) =>
         });
     } catch (error) {
         console.error("Fetch rides error", error);
+=======
+        res.json(filteredRides);
+    } catch (error) {
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
         res.status(500).json({ error: 'Failed to fetch available rides' });
     }
 });
@@ -554,7 +596,10 @@ app.get('/api/health', (req, res) => {
 });
 
 async function startServer() {
+<<<<<<< HEAD
     
+=======
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
     const httpServer = http.createServer(app);
     const io = new Server(httpServer, {
         cors: {

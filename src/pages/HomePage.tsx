@@ -10,8 +10,12 @@ export default function HomePage() {
     const navigate = useNavigate();
 
     const handleServiceSelect = (serviceType: string) => {
+<<<<<<< HEAD
         // We'll set it in localStorage/session or state, simple url state works too, for now localstorage or navigate state
         navigate('/passenger', { state: { serviceType } });
+=======
+        navigate('/passenger', { state: { serviceType, isNewRequest: true } });
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
     };
 
     return (

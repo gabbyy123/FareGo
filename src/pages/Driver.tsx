@@ -34,9 +34,15 @@ const RideRequestCard = ({ ride, onAccept, onCounter, isSubmitting }: { ride: an
                             )}
                             <div>
                                 <h3 className="text-xl md:text-2xl font-bold text-slate-900 flex items-center gap-2">
+<<<<<<< HEAD
                                     {ride.passengerName}
                                     <span className="flex items-center gap-1 text-sm font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-lg border border-slate-200">
                                        <Star className="w-3.5 h-3.5 text-yellow-500 fill-yellow-500" /> {ride.rating.toFixed(1)}
+=======
+                                    {ride.passengerName || 'Passenger'}
+                                    <span className="flex items-center gap-1 text-sm font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-lg border border-slate-200">
+                                       <Star className="w-3.5 h-3.5 text-yellow-500 fill-yellow-500" /> {(ride.rating || 5.0).toFixed(1)}
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
                                     </span>
                                 </h3>
                                 <div className="flex flex-wrap items-center gap-2 mt-2 text-slate-600 font-medium text-sm">
@@ -145,16 +151,32 @@ export default function Driver() {
             fetchAvailableRides();
         });
 
+<<<<<<< HEAD
+=======
+        socketRef.current.on('rideCancelled', (data: any) => {
+            setRides((prev) => prev.filter(r => String(r.id) !== String(data.rideId)));
+        });
+
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
         socketRef.current.on('bidAccepted', (data: any) => {
             if (data.winningDriverId === user?.id) {
                 toast.success('Your bid was accepted! Redirecting...');
                 setRides(prev => {
+<<<<<<< HEAD
                     const matchedRide = prev.find(r => r.id === data.rideId) || { id: data.rideId, active: true };
                     setActiveTrip(matchedRide);
                     return prev.filter(r => r.id !== data.rideId);
                 });
             } else {
                 setRides(prev => prev.filter(r => r.id !== data.rideId));
+=======
+                    const matchedRide = data.rideDetails || prev.find(r => String(r.id) === String(data.rideId)) || { id: data.rideId, active: true };
+                    setActiveTrip(matchedRide);
+                    return prev.filter(r => String(r.id) !== String(data.rideId));
+                });
+            } else {
+                setRides(prev => prev.filter(r => String(r.id) !== String(data.rideId)));
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
             }
         });
 
@@ -178,14 +200,23 @@ export default function Driver() {
             });
             const data = await res.json();
             if (res.ok) {
+<<<<<<< HEAD
                    const formatted = data.map((r: any) => ({
+=======
+                   const formatted = data.availableTrips.map((r: any) => ({
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
                    id: r.id,
                    passengerName: r.passengerName || 'Passenger',
                    rating: 5.0,
                    pickupAddress: r.pickupAddress || 'Unknown Pickup',
                    dropoffAddress: r.dropoffAddress || 'Unknown Dropoff',
+<<<<<<< HEAD
                    pickupLat: r.pickupLat || 14.5995, pickupLng: r.pickupLng || 120.9842,
                    dropoffLat: r.dropoffLat || 14.6050, dropoffLng: r.dropoffLng || 120.9850,
+=======
+                   pickupLat: r.pickupLat, pickupLng: r.pickupLng,
+                   dropoffLat: r.dropoffLat, dropoffLng: r.dropoffLng,
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
                    distance: r.distance || '1.0 km',
                    eta: r.eta || '5 mins',
                    proposedFare: r.proposedFare,
@@ -194,6 +225,12 @@ export default function Driver() {
                    serviceType: r.serviceType
                  }));
                  setRides(formatted);
+<<<<<<< HEAD
+=======
+                 if (data.activeTrip && (!activeTrip || activeTrip.id !== data.activeTrip.id)) {
+                     setActiveTrip(data.activeTrip);
+                 }
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
             }
         } catch (err) {
             console.error('Failed to fetch available rides', err);
@@ -224,7 +261,13 @@ export default function Driver() {
                 if (res.ok) {
                     toast.success(`Accepted ₱${ride.proposedFare}. Waiting for passenger...`);
                 } else {
+<<<<<<< HEAD
                     toast.error('Failed to submit bid');
+=======
+                    const errData = await res.json();
+                    console.error("Bid failed:", errData);
+                    toast.error(`Failed: ${errData.details || errData.error || 'Server error'}`);
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
                 }
             } catch (err) {
                  toast.error('Network Error');
@@ -257,7 +300,13 @@ export default function Driver() {
                  if (res.ok) {
                      toast.success(`Countered ₱${bid}. Waiting for passenger...`);
                  } else {
+<<<<<<< HEAD
                      toast.error('Failed to submit bid');
+=======
+                     const errData = await res.json();
+                     console.error("Bid failed:", errData);
+                     toast.error(`Failed: ${errData.details || errData.error || 'Server error'}`);
+>>>>>>> 08209eea902862f15c18d61fcf1af88d874e87e6
                  }
              } catch (err) {
                   toast.error('Network Error');
